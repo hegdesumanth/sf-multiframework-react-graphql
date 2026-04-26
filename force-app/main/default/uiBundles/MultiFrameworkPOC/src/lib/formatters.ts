@@ -26,6 +26,11 @@ export function initials(name: string | null | undefined): string {
   return parts.map(p => p[0]?.toUpperCase() ?? '').join('') || '?';
 }
 
+export function percent(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return '—';
+  return `${Math.round(value)}%`;
+}
+
 export const STAGE_BADGE_CLASSES: Record<string, string> = {
   Prospecting: 'bg-slate-500',
   Qualification: 'bg-blue-500',
