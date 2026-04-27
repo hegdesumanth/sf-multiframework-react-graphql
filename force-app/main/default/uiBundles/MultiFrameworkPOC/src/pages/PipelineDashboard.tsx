@@ -3,6 +3,8 @@ import { BarChart3, Calculator, Trophy, TrendingUp } from 'lucide-react';
 import { KPICard } from '@/components/pipeline/KPICard';
 import { OpportunityTable } from '@/components/pipeline/OpportunityTable';
 import { DynamicQueryToggle } from '@/components/pipeline/DynamicQueryToggle';
+import { StageFunnel } from '@/components/pipeline/StageFunnel';
+import { OptionalFieldsDemo } from '@/components/pipeline/OptionalFieldsDemo';
 import { usePipelineData } from '@/hooks/usePipelineData';
 import { computeKpis } from '@/lib/kpi';
 import { currency, percent } from '@/lib/formatters';
@@ -21,9 +23,9 @@ export default function PipelineDashboard() {
             Sales Pipeline Intelligence
           </h1>
           <p className="mt-2 text-slate-400">
-            Open pipeline KPIs, runtime-swappable query, and a filterable
-            opportunities table. Funnel and optional-fields demo land in the
-            next phase.
+            React + GraphQL on Salesforce Multi-Framework. Open pipeline KPIs,
+            stage funnel, runtime-swappable query, opportunity table, and an
+            FLS-resilience demo — all without LWC, Apex, or SLDS.
           </p>
         </div>
 
@@ -34,42 +36,19 @@ export default function PipelineDashboard() {
         )}
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPICard
-            title="Total Open Pipeline"
-            value={currency(kpis.totalOpenPipeline)}
-            icon={<TrendingUp className="h-4 w-4" />}
-            loading={loading}
-          />
-          <KPICard
-            title="Weighted Pipeline"
-            value={currency(kpis.weightedPipeline)}
-            icon={<Calculator className="h-4 w-4" />}
-            loading={loading}
-          />
-          <KPICard
-            title="Average Deal Size"
-            value={currency(kpis.averageDealSize)}
-            icon={<BarChart3 className="h-4 w-4" />}
-            loading={loading}
-          />
-          <KPICard
-            title="Win Rate"
-            value={percent(kpis.winRate)}
-            icon={<Trophy className="h-4 w-4" />}
-            loading={loading}
-          />
+          <KPICard title="Total Open Pipeline" value={currency(kpis.totalOpenPipeline)} icon={<TrendingUp className="h-4 w-4" />} loading={loading} />
+          <KPICard title="Weighted Pipeline" value={currency(kpis.weightedPipeline)} icon={<Calculator className="h-4 w-4" />} loading={loading} />
+          <KPICard title="Average Deal Size" value={currency(kpis.averageDealSize)} icon={<BarChart3 className="h-4 w-4" />} loading={loading} />
+          <KPICard title="Win Rate" value={percent(kpis.winRate)} icon={<Trophy className="h-4 w-4" />} loading={loading} />
         </section>
 
-        <DynamicQueryToggle
-          isExtended={isExtended}
-          onToggle={() => setIsExtended(v => !v)}
-        />
+        <StageFunnel opportunities={opportunities} loading={loading} />
 
-        <OpportunityTable
-          opportunities={opportunities}
-          isExtended={isExtended}
-          loading={loading}
-        />
+        <DynamicQueryToggle isExtended={isExtended} onToggle={() => setIsExtended(v => !v)} />
+
+        <OpportunityTable opportunities={opportunities} isExtended={isExtended} loading={loading} />
+
+        <OptionalFieldsDemo />
       </div>
     </div>
   );

@@ -65,9 +65,9 @@ export function OpportunityTable({ opportunities, isExtended, loading }: Opportu
               <TableHead className="text-slate-400">Close Date</TableHead>
               {isExtended && (
                 <>
-                  <TableHead className="text-slate-400">Industry <Badge variant="outline" className="ml-1 text-[10px]">Extended</Badge></TableHead>
-                  <TableHead className="text-right text-slate-400">Annual Revenue <Badge variant="outline" className="ml-1 text-[10px]">Extended</Badge></TableHead>
-                  <TableHead className="text-slate-400">Owner Title <Badge variant="outline" className="ml-1 text-[10px]">Extended</Badge></TableHead>
+                  <TableHead className="text-slate-400">Industry <Badge variant="outline" className="ml-1 text-[10px] text-slate-400">Extended</Badge></TableHead>
+                  <TableHead className="text-right text-slate-400">Annual Revenue <Badge variant="outline" className="ml-1 text-[10px] text-slate-400">Extended</Badge></TableHead>
+                  <TableHead className="text-slate-400">Owner Title <Badge variant="outline" className="ml-1 text-[10px] text-slate-400">Extended</Badge></TableHead>
                 </>
               )}
             </TableRow>

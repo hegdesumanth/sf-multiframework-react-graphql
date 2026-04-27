@@ -32,7 +32,7 @@ export function DynamicQueryToggle({ isExtended, onToggle }: DynamicQueryToggleP
         className={cn('relative h-6 w-11 rounded-full transition-colors', isExtended ? 'bg-indigo-500' : 'bg-slate-700')}
       >
         <span
-          className={cn('absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform', isExtended ? 'translate-x-5' : 'translate-x-0.5')}
+          className={cn('absolute top-0.5 left-1 h-5 w-5 rounded-full bg-white transition-transform', isExtended ? 'translate-x-4' : '')}
         />
       </button>
     </div>
