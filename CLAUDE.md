@@ -1,6 +1,6 @@
 ## Current Status
 
-We are on Phase 1 of 9 implementation phases.
+Pipeline Dashboard complete. Two additional GraphQL exploration routes built. Pre-blog-publish work remains.
 
 ### What's done
 - Scratch org created and Multi-Framework beta enabled
@@ -8,27 +8,37 @@ We are on Phase 1 of 9 implementation phases.
 - PRD and TRD are in /docs folder
 - shadcn/ui components already exist in src/components/ui/
 - GraphQL client already exists at src/api/graphqlClient.ts
-- Routing already set up via router-utils.tsx and routes.tsx
+- Routing set up via router-utils.tsx and routes.tsx
 - Styles entry point is src/styles/global.css (not index.css)
+- **Pipeline Dashboard fully built** — all 5 components (KPICard, OpportunityTable, StageFunnel, DynamicQueryToggle, OptionalFieldsDemo) + usePipelineData hook
+- **OpportunitiesPage built** — `/opportunities` route, flat Opportunity query with nested Account, single round trip
+- **AccountsWithOpportunitiesPage built** — `/accounts-with-opps` route, parent-child GraphQL query (equivalent to SOQL sub-select), expandable row UI
 
-### What we're building
-Sales Pipeline Intelligence Dashboard — see /docs/PRD and /docs/TRD
+### Active routes
+| Path | Component | Nav label |
+|---|---|---|
+| `/` | `Home` | Home |
+| `/accounts` | `AccountSearch` | (not in nav) |
+| `/accounts/:recordId` | `AccountObjectDetailPage` | (not in nav) |
+| `/pipeline` | `PipelineDashboard` | Pipeline |
+| `/opportunities` | `OpportunitiesPage` | Opportunities |
+| `/accounts-with-opps` | `AccountsWithOpportunitiesPage` | Accounts & Opps |
 
-### Immediate next step
-Audit these 5 files before touching anything:
-1. src/styles/global.css        — check Tailwind directives
-2. tailwind.config.ts           — check darkMode: "class" is set
-3. src/api/graphqlClient.ts     — understand existing SDK pattern
-4. src/app.tsx                  — current root layout
-5. src/pages/Home.tsx           — current home page
+### Remaining before blog-publish
+- Verify all 5 Pipeline Dashboard sections render with real org data
+- Confirm Dynamic Query Toggle swaps query string (check network panel)
+- Confirm Optional Fields panel does not crash on inaccessible fields
+- Update `MultiFrameworkPOC.uibundle-meta.xml` masterLabel to "Pipeline Dashboard"
+- Replace README.md body with LWC vs Multi-Framework comparison table (TRD §14)
 
 ### Key decisions made
 - All files are .tsx/.ts (TypeScript scaffold, not JS)
 - Build on existing graphqlClient.ts pattern, don't recreate
-- Dark theme: slate-950 bg, indigo-500 accent
+- Dark theme: slate-950 bg, indigo-500 accent; each page owns its dark wrapper (`min-h-screen bg-slate-950`)
 - No SLDS classes anywhere
-- All GraphQL queries go in src/api/ following existing pattern
-- Components go in src/components/ alongside existing ones
+- All GraphQL queries stored as `.graphql` files imported with `?raw`, not inline gql tags — keeps query files auditable and separately readable
+- Stage badge color map defined locally per-component (not centralized) — acceptable deviation from TRD since the map is small and co-located with rendering logic
+- Service layer per domain: `src/api/opportunity/`, `src/api/accountOpportunities/`, `src/api/account/` — each has a `query/` subfolder with `.graphql` files and a service `.ts` file that calls `executeGraphQL` directly
 
 
 
@@ -125,30 +135,68 @@ The PRD/TRD describe one tree; the actual layout is below. The bundle folder is 
         ├── api/
         │   ├── graphqlClient.ts              # executeGraphQL<TData,TVars> — already wired
         │   ├── graphql-operations-types.ts   # GENERATED — never hand-edit
-        │   └── account/                      # template's Account search demo (delete or keep as reference)
+        │   ├── account/                      # Account search + detail (scaffold template)
+        │   │   ├── accountSearchService.ts
+        │   │   └── query/                    # searchAccounts.graphql, getAccountDetail.graphql, …
+        │   ├── opportunity/                  # ✅ BUILT — flat Opportunity list
+        │   │   ├── opportunityService.ts
+        │   │   └── query/getOpportunities.graphql
+        │   └── accountOpportunities/         # ✅ BUILT — Account + child Opps (parent-child query)
+        │       ├── accountOpportunitiesService.ts
+        │       └── query/getAccountsWithOpportunities.graphql
         ├── components/
-        │   └── ui/                           # shadcn primitives — VERIFY exports before importing
-        ├── features/                         # feature modules
-        ├── pages/                            # one default-exported component per route
+        │   ├── ui/                           # shadcn primitives — VERIFY exports before importing
+        │   ├── pipeline/                     # ✅ BUILT — all 5 pipeline components
+        │   │   ├── KPICard.tsx
+        │   │   ├── OpportunityTable.tsx
+        │   │   ├── StageFunnel.tsx
+        │   │   ├── DynamicQueryToggle.tsx
+        │   │   └── OptionalFieldsDemo.tsx
+        │   └── accounts/                     # ✅ BUILT — reusable accounts+opps table
+        │       └── AccountOppTable.tsx
+        ├── hooks/
+        │   ├── usePipelineData.ts            # ✅ BUILT — picks core/extended query, flattens edges
+        │   └── useOpportunityFilter.ts       # ✅ BUILT — client-side filter state for opp table
+        ├── lib/
+        │   ├── utils.ts                      # cn() helper
+        │   ├── queries.ts                    # ✅ BUILT — CORE_PIPELINE_QUERY, EXTENDED_PIPELINE_QUERY, OPTIONAL_FIELDS_DEMO_QUERY
+        │   └── formatters.ts                 # ✅ BUILT — currency, date, initials, computeKpis
+        ├── features/                         # object-search feature module (scaffold template)
+        ├── pages/
+        │   ├── Home.tsx
+        │   ├── AccountSearch.tsx
+        │   ├── AccountObjectDetailPage.tsx
+        │   ├── NotFound.tsx
+        │   ├── PipelineDashboard.tsx         # ✅ BUILT — root composer for all 5 pipeline sections
+        │   ├── OpportunitiesPage.tsx         # ✅ BUILT — flat opp list, nested Account data
+        │   └── AccountsWithOpportunitiesPage.tsx  # ✅ BUILT — parent-child query, expandable rows
         ├── assets/
         └── types/
 ```
 
-**Files you will create for this POC** (TRD §3, but in TSX, under this scaffold):
+**Pipeline Dashboard files** (TRD §3 — all built):
 
-| Path (under `src/`) | Purpose | Section |
+| Path (under `src/`) | Status | Purpose |
 |---|---|---|
-| `lib/queries.ts` | `gql`-tagged query constants: `CORE_PIPELINE_QUERY`, `EXTENDED_PIPELINE_QUERY`, `OPTIONAL_FIELDS_DEMO_QUERY` | TRD §4, §7.1 |
-| `lib/formatters.ts` | `currency`, `date`, `initials` helpers (prefer `date-fns` for date) | TRD §7.2 |
-| `hooks/usePipelineData.ts` | `(isExtended: boolean) => { opportunities, loading, error, refetch }` | TRD §6 |
-| `pages/PipelineDashboard.tsx` | Root page — composes the five sections; mount via `routes.tsx` | TRD §5 |
-| `components/pipeline/KPICard.tsx` | FR-01 (max 60 lines) | TRD §5.1 |
-| `components/pipeline/OpportunityTable.tsx` | FR-02 (max 150 lines) | TRD §5.2 |
-| `components/pipeline/StageFunnel.tsx` | FR-03 (max 80 lines) | TRD §5.3 |
-| `components/pipeline/DynamicQueryToggle.tsx` | FR-04 (max 50 lines) | TRD §5.4 |
-| `components/pipeline/OptionalFieldsDemo.tsx` | FR-05 (max 80 lines) | TRD §5.5 |
+| `lib/queries.ts` | ✅ done | `CORE_PIPELINE_QUERY`, `EXTENDED_PIPELINE_QUERY`, `OPTIONAL_FIELDS_DEMO_QUERY` |
+| `lib/formatters.ts` | ✅ done | `currency`, `date`, `initials`, `computeKpis` |
+| `hooks/usePipelineData.ts` | ✅ done | `(isExtended: boolean) => { opportunities, loading, error, refetch }` |
+| `pages/PipelineDashboard.tsx` | ✅ done | Root page — composes five sections |
+| `components/pipeline/KPICard.tsx` | ✅ done | FR-01 (≤ 60 lines) |
+| `components/pipeline/OpportunityTable.tsx` | ✅ done | FR-02 (≤ 150 lines) |
+| `components/pipeline/StageFunnel.tsx` | ✅ done | FR-03 (≤ 80 lines) |
+| `components/pipeline/DynamicQueryToggle.tsx` | ✅ done | FR-04 (≤ 50 lines) |
+| `components/pipeline/OptionalFieldsDemo.tsx` | ✅ done | FR-05 (≤ 80 lines) |
 
-Add a route in `routes.tsx` (e.g. `path: 'pipeline'`, `handle: { showInNavigation: true, label: 'Pipeline' }`). Do not modify `app.tsx` or `appLayout.tsx` to add a page — that's an `AGENT.md` rule.
+**GraphQL exploration routes** (added post-PRD for pre-publish testing):
+
+| Path (under `src/`) | Route | Purpose |
+|---|---|---|
+| `api/opportunity/opportunityService.ts` | `/opportunities` | Flat Opportunity query with nested `Account` — demonstrates one-query parent traversal |
+| `api/accountOpportunities/accountOpportunitiesService.ts` | `/accounts-with-opps` | Parent-child query (`Account` + `Opportunities` sub-connection) — equivalent to SOQL sub-select |
+| `components/accounts/AccountOppTable.tsx` | — | Expandable row table; click account row to reveal child opps inline |
+
+Do not modify `app.tsx` or `appLayout.tsx` to add pages — that's an `AGENT.md` rule. All routes go in `routes.tsx` only.
 
 ---
 
@@ -203,7 +251,76 @@ npm run test -- -t "computes weighted pipeline"              # one test by name
 
 ---
 
-## 5. GraphQL Queries
+## 5. GraphQL Patterns (confirmed working)
+
+These patterns have been validated against the live scratch org and can be used as templates for new queries.
+
+### Query file convention
+All queries live in `.graphql` files imported as raw strings:
+```typescript
+import MY_QUERY from './query/myQuery.graphql?raw';
+// then: executeGraphQL<MyResponseType, MyVarsType>(MY_QUERY, vars)
+```
+This keeps queries human-readable and separately auditable. The `?raw` Vite suffix imports the file as a plain string — no bundler transform.
+
+### Parent-traversal (many-to-one)
+Access a related parent object directly as a nested field on the child:
+```graphql
+Opportunity(first: 10) {
+  edges { node {
+    Id
+    Name @optional { value displayValue }
+    Account @optional {           # ← parent Account, traversed inline
+      Id
+      Name @optional { value displayValue }
+      Industry @optional { value displayValue }
+    }
+    Owner @optional {
+      Name @optional { value displayValue }
+    }
+  }}
+}
+```
+Equivalent SOQL: `SELECT Id, Name, Account.Name, Owner.Name FROM Opportunity LIMIT 10`
+
+### Child sub-query (one-to-many)
+Access child records using the Salesforce relationship name as a sub-connection. **Always include `first:` on child connections** — omitting it silently caps at 10.
+```graphql
+Account(first: 10) {
+  edges { node {
+    Id
+    Name @optional { value displayValue }
+    Opportunities(first: 50) @optional {   # ← child Opps, sub-connection
+      edges { node {
+        Id
+        Name @optional { value displayValue }
+        StageName @optional { value displayValue }
+        Amount @optional { value displayValue }
+      }}
+      totalCount
+    }
+  }}
+}
+```
+Equivalent SOQL: `SELECT Id, Name, (SELECT Id, Name, StageName FROM Opportunities) FROM Account LIMIT 10`
+
+### `@optional` placement rules
+- **Scalar fields**: `FieldName @optional { value displayValue }` — always
+- **Parent relationships**: `RelationshipName @optional { NestedField @optional { value } }` — directive on the relationship itself
+- **Child sub-connections**: `ChildRelationship(first: N) @optional { edges { node { ... } } }` — directive after arguments, before the block
+- Missing `@optional` on ANY field causes the entire query to fail with `FIELD_NOT_ACCESSIBLE` if the running user lacks FLS access
+
+### TypeScript response shape
+Salesforce fields always return a wrapper object, never raw scalars:
+```typescript
+interface SFField<T> { value: T | null; displayValue: string | null; }
+// Usage: opp.Name?.value, opp.Amount?.displayValue
+```
+Since codegen only generates types for queries already in the project, new query files won't have generated types immediately. Define inline interfaces in the service file until the next `npm run graphql:codegen` run.
+
+---
+
+## 6. GraphQL Queries (Pipeline Dashboard)
 
 All three queries live in `src/lib/queries.ts` as named `gql`-tagged exports (the `gql` tag from `@salesforce/sdk-data` is required so `@graphql-eslint` can validate against `schema.graphql`). Verify every field name against the schema before writing — use `scripts/graphql-search.sh` or regenerate via `npm run graphql:schema`. **Never** open `schema.graphql` directly (265K+ lines).
 
@@ -230,7 +347,7 @@ All three queries live in `src/lib/queries.ts` as named `gql`-tagged exports (th
 
 ---
 
-## 6. Component Map
+## 7. Component Map
 
 All paths are under `src/components/pipeline/` unless noted. **Hard line limits per TRD §5 — do not exceed.** If a component is approaching its cap, extract logic into a hook (`src/hooks/`) or a util (`src/lib/`).
 
@@ -262,7 +379,7 @@ Id. Decision Makers → bg-yellow-500 Closed Lost → bg-red-500
 
 ---
 
-## 7. Design Tokens
+## 8. Design Tokens
 
 **Dark theme everywhere.** PRD §8 is non-negotiable.
 
@@ -281,7 +398,7 @@ The scaffolded `appLayout.tsx` currently uses a **light** theme (`bg-white`, `te
 
 ---
 
-## 8. Key Constraints (do NOT violate)
+## 9. Key Constraints (do NOT violate)
 
 From PRD §5.2, AGENT.md, and TRD §13:
 
@@ -299,7 +416,7 @@ From PRD §5.2, AGENT.md, and TRD §13:
 
 ---
 
-## 9. Code Style Rules
+## 10. Code Style Rules
 
 This POC will be read by strangers on the internet. Optimize for that.
 
@@ -310,7 +427,7 @@ This POC will be read by strangers on the internet. Optimize for that.
 - These three comment blocks are **product requirements**, not decoration. They are quoted directly in the blog post.
 - Outside of these required teaching comments, follow the usual rule: only comment when *why* is non-obvious.
 
-**File size limits** (TRD §5, repeated for visibility): `KPICard` ≤ 60, `DynamicQueryToggle` ≤ 50, `StageFunnel` ≤ 80, `OptionalFieldsDemo` ≤ 80, `OpportunityTable` ≤ 150. **No component file exceeds 150 lines** under any circumstance — extract a hook or util.
+**File size limits** (TRD §5, repeated for visibility): `KPICard` ≤ 60, `DynamicQueryToggle` ≤ 50, `StageFunnel` ≤ 80, `OptionalFieldsDemo` ≤ 80, `OpportunityTable` ≤ 150. **No component file exceeds 150 lines** under any circumstance — extract a hook or util. Also applies to the new exploration-route components in `src/components/accounts/`.
 
 **Naming:**
 - Components: PascalCase TSX files matching the export name (`KPICard.tsx` exports `KPICard`).
@@ -327,7 +444,7 @@ This POC will be read by strangers on the internet. Optimize for that.
 
 ---
 
-## 10. Definition of Done
+## 11. Definition of Done
 
 The POC is complete and blog-ready (PRD §9) when **all** of the following are true:
 
@@ -338,6 +455,6 @@ The POC is complete and blog-ready (PRD §9) when **all** of the following are t
 5. The three required teaching comment blocks (queries.ts header, DynamicQueryToggle side-by-side, OptionalFieldsDemo side-by-side) are present and accurate. A non-Salesforce dev can read the code and understand the GraphQL approach from comments alone.
 6. The README contains a **React Multi-Framework vs LWC comparison table** (TRD §14 has the source content). The current `README.md` is the template's — replace its body with project-specific content before declaring done.
 7. From the UI Bundle directory: `npm run build` passes with **zero** errors, `npm run lint` passes with **zero** errors, `npm run dev` starts cleanly. None of these may be skipped.
-8. No file exceeds its line cap (§6). No SLDS classes, no `lightning/*` imports, no `@wire`, no mutations, no `any`.
+8. No file exceeds its line cap (§7). No SLDS classes, no `lightning/*` imports, no `@wire`, no mutations, no `any`.
 
 UI / behavior verification of items 1–4 cannot be done from this CLI — explicitly tell the user what to check in the browser rather than claiming the visuals work.
