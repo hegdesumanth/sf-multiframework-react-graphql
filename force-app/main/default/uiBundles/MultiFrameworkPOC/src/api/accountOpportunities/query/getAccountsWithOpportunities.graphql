@@ -1,0 +1,38 @@
+# Equivalent SOQL: SELECT Id, Name, Industry, Type, Phone,
+#   (SELECT Id, Name, StageName, Amount, CloseDate, Probability FROM Opportunities LIMIT 50)
+# FROM Account ORDER BY Name LIMIT 10
+#
+# In LWC @wire you would need separate adapters + manual join in JS,
+# or a custom Apex method. Here a single GraphQL request returns the
+# full parent-child tree — one network round trip, zero Apex.
+query GetAccountsWithOpportunities {
+	uiapi {
+		query {
+			Account(first: 10, orderBy: { Name: { order: ASC } }) {
+				edges {
+					node {
+						Id
+						Name @optional { value displayValue }
+						Industry @optional { value displayValue }
+						Type @optional { value displayValue }
+						Phone @optional { value displayValue }
+						Opportunities(first: 50) @optional {
+							edges {
+								node {
+									Id
+									Name @optional { value displayValue }
+									StageName @optional { value displayValue }
+									Amount @optional { value displayValue }
+									CloseDate @optional { value displayValue }
+									Probability @optional { value displayValue }
+								}
+							}
+							totalCount
+						}
+					}
+				}
+				totalCount
+			}
+		}
+	}
+}

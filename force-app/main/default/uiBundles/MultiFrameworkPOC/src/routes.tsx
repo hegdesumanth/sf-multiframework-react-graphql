@@ -6,6 +6,7 @@ import AccountSearch from './pages/AccountSearch';
 import AccountObjectDetail from './pages/AccountObjectDetailPage';
 import PipelineDashboard from './pages/PipelineDashboard';
 import OpportunitiesPage from './pages/OpportunitiesPage';
+import AccountsWithOpportunitiesPage from './pages/AccountsWithOpportunitiesPage';
 
 export const routes: RouteObject[] = [
   {
@@ -34,6 +35,11 @@ export const routes: RouteObject[] = [
         path: 'opportunities',
         element: <OpportunitiesPage />,
         handle: { showInNavigation: true, label: 'Opportunities' }
+      },
+      {
+        path: 'accounts-with-opps',
+        element: <AccountsWithOpportunitiesPage />,
+        handle: { showInNavigation: true, label: 'Accounts & Opps' }
       },
       {
         path: '*',
