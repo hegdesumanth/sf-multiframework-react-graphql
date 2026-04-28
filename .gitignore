@@ -24,6 +24,13 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 
+# Build output
+dist/
+build/
+
+# Generated GraphQL schema (265K+ lines — regenerate via npm run graphql:schema)
+**/src/api/schema.graphql
+
 # ApexPMD cache
 .pmdCache
 
