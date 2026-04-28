@@ -27,7 +27,7 @@ export default function AppLayout() {
 		);
 
 	return (
-		<>
+		<div className="w-full">
 			<nav className="bg-white border-b border-gray-200">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex justify-between items-center h-16">
@@ -80,6 +80,6 @@ export default function AppLayout() {
 			</nav>
 			<Outlet />
 			<AgentforceConversationClient agentId="<USER_AGENT_ID_18_CHAR_0Xx...>" />
-		</>
+		</div>
 	);
 }

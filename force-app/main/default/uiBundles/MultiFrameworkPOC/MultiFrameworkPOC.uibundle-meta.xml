@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UIBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <masterLabel>MultiFrameworkPOC</masterLabel>
-    <description>A Salesforce UI Bundle.</description>
+    <masterLabel>Pipeline Dashboard</masterLabel>
+    <description>Sales Pipeline Intelligence Dashboard — React 19 + GraphQL on Salesforce Multi-Framework (open beta). Demonstrates dynamic query construction, @optional FLS resilience, Recharts, and shadcn/ui without LWC or SLDS.</description>
     <isActive>true</isActive>
     <version>1</version>
 </UIBundle>
