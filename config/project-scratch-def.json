@@ -1,5 +1,5 @@
 {
-  "orgName": "My Saleforce Org",
+  "orgName": "SF Multi-Framework Pipeline Dashboard",
   "edition": "Developer",
   "features": ["EnableSetPasswordInApi"],
   "settings": {

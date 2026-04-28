@@ -25,7 +25,8 @@ yarn-error.log*
 node_modules/
 
 # Build output
-dist/
+# Note: dist/ is intentionally tracked — it contains the compiled UI Bundle
+# that Salesforce deploys. Run `npm run build` from the UI bundle dir to update it.
 build/
 
 # Generated GraphQL schema (265K+ lines — regenerate via npm run graphql:schema)
