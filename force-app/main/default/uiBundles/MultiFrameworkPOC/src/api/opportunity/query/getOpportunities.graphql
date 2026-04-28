@@ -1,0 +1,31 @@
+query GetOpportunities {
+	uiapi {
+		query {
+			Opportunity(first: 10, orderBy: { CloseDate: { order: ASC } }) {
+				edges {
+					node {
+						Id
+						Name @optional { value displayValue }
+						StageName @optional { value displayValue }
+						Amount @optional { value displayValue }
+						CloseDate @optional { value displayValue }
+						Probability @optional { value displayValue }
+						IsClosed @optional { value }
+						IsWon @optional { value }
+						Account @optional {
+							Id
+							Name @optional { value displayValue }
+							Industry @optional { value displayValue }
+							Type @optional { value displayValue }
+						}
+						Owner @optional {
+							Id
+							Name @optional { value displayValue }
+						}
+					}
+				}
+				totalCount
+			}
+		}
+	}
+}

@@ -5,6 +5,7 @@ import NotFound from './pages/NotFound';
 import AccountSearch from './pages/AccountSearch';
 import AccountObjectDetail from './pages/AccountObjectDetailPage';
 import PipelineDashboard from './pages/PipelineDashboard';
+import OpportunitiesPage from './pages/OpportunitiesPage';
 
 export const routes: RouteObject[] = [
   {
@@ -28,6 +29,11 @@ export const routes: RouteObject[] = [
         path: 'pipeline',
         element: <PipelineDashboard />,
         handle: { showInNavigation: true, label: 'Pipeline' }
+      },
+      {
+        path: 'opportunities',
+        element: <OpportunitiesPage />,
+        handle: { showInNavigation: true, label: 'Opportunities' }
       },
       {
         path: '*',
