@@ -487,7 +487,7 @@ async function main() {
   }
 
   if (!skipDeploy) {
-    run('Deploy metadata', 'sf', ['project', 'deploy', 'start', '--target-org', targetOrg], {
+    run('Deploy metadata', 'sf', ['project', 'deploy', 'start', '--target-org', targetOrg, '--ignore-conflicts'], {
       timeout: 180000,
     });
   }
