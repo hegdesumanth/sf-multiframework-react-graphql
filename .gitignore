@@ -32,6 +32,9 @@ build/
 # Generated GraphQL schema (265K+ lines — regenerate via npm run graphql:schema)
 **/src/api/schema.graphql
 
+# TypeScript build caches — regenerated locally, should not be committed
+*.tsbuildinfo
+
 # ApexPMD cache
 .pmdCache
 
