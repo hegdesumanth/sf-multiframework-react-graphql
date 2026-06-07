@@ -17,7 +17,7 @@
 8. [Navigate into the UI Bundle & Inspect the Scaffold](#8-navigate-into-the-ui-bundle--inspect-the-scaffold)
 9. [Install Dependencies & Run Locally](#9-install-dependencies--run-locally)
 10. [Configure Tailwind CSS v4](#10-configure-tailwind-css-v4)
-11. *(shadcn/ui — coming soon)*
+11. [Deploy to Salesforce](#11-deploy-to-salesforce)
 
 ---
 
@@ -143,6 +143,11 @@ This generates the full React scaffold at `force-app/main/default/uiBundles/Mult
 
 **Alternative:** VS Code Command Palette → `SFDX: Create UI Bundle` — same result, no terminal needed.
 
+> **Known gotcha:** The template sets `sourceApiVersion` to the latest API version in `sfdx-project.json`. If this is higher than what your scratch org supports, deploys will fail with "Invalid version specified". Open `sfdx-project.json` and set it to `"66.0"`:
+> ```json
+> "sourceApiVersion": "66.0"
+> ```
+
 ---
 
 ## 7. Set Scratch Org as Default
@@ -203,4 +208,74 @@ Opens at `http://localhost:5173`. At this point it shows the default scaffold �
 
 ## 10. Configure Tailwind CSS v4
 
-Tailwind is already in `package.json` from the template.
+Tailwind is already in `package.json` from the template. What needs to be configured:
+
+**`tailwind.config.ts`** — create at the bundle root:
+```ts
+export default {
+  important: true,
+};
+```
+> `important: true` is required to override Salesforce platform's global CSS reset.
+
+**`vite.config.ts`** — add the Tailwind plugin:
+```ts
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [tailwindcss(), ...],
+});
+```
+
+**`src/styles/global.css`** — wire up Tailwind and the config:
+```css
+@import 'tailwindcss';
+@config "../../tailwind.config.ts";
+
+@layer base {
+  html, body, #root {
+    width: 100%;
+    @apply min-h-screen;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    @apply antialiased bg-white;
+  }
+}
+```
+
+Import this file in `main.tsx`:
+```ts
+import './styles/global.css';
+```
+
+---
+
+## 11. Deploy to Salesforce
+
+The Salesforce CLI deploys whatever is inside `dist/` — so **the build must run first** every time before deploying. If `dist/` doesn't exist, the deploy will fail with a `ui-bundle.json 'outputDir' references "dist" but the directory does not exist` error.
+
+**Step 1 — Build the app** (run from inside the UI Bundle directory):
+```bash
+cd force-app/main/default/uiBundles/MultiFrameworkDemo
+npm run build
+```
+This runs TypeScript checks and outputs the production bundle to `dist/`. Verify the folder exists before proceeding.
+
+**Step 2 — Deploy to the scratch org** (run from the repo root):
+```bash
+cd ../../../../../
+sf project deploy start --source-dir force-app --target-org mf-scratch
+
+**Step 3 — Open the org to verify:**
+```bash
+sf org open --target-org mf-scratch
+```
+Navigate to App Launcher → search **Pipeline Dashboard** → open the app.
+
+> Always run `npm run build` before `sf project deploy`. Local `npm run dev` does not produce a `dist/` folder — it serves files in memory only.
+
+---
+
+*More sections coming.*
