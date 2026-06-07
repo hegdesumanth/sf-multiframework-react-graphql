@@ -5,6 +5,8 @@ A proof-of-concept Salesforce app that runs a **React 19 SPA natively inside a S
 
 This codebase is the companion repo for the **ABSYZ blog post series** on Salesforce Multi-Framework.
 
+> 📹 **Building this from scratch?** Follow the [Video Course Guide](./VIDEO_COURSE_GUIDE/README.md) — step-by-step from org setup to deployed app.
+
 ---
 
 ## What This Demonstrates
