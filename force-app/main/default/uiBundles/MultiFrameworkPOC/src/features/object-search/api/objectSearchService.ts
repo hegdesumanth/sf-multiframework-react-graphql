@@ -1,4 +1,4 @@
-import { createDataSDK } from "@salesforce/sdk-data";
+import { createDataSDK } from "@salesforce/platform-sdk/data";
 
 export interface ObjectSearchOptions<TWhere, TOrderBy> {
 	where?: TWhere;
@@ -21,12 +21,10 @@ export async function searchObjects<TResult, TQuery, TVariables>(
 	const { where, orderBy, first = 20, after } = options;
 
 	const data = await createDataSDK();
-	const response = await data.graphql?.<TQuery, TVariables>(query, {
-		first,
-		after,
-		where,
-		orderBy,
-	} as TVariables);
+	const response = await data.graphql?.query<TQuery, TVariables>({
+		query,
+		variables: { first, after, where, orderBy } as TVariables,
+	});
 
 	if (response?.errors?.length) {
 		throw new Error(response.errors.map((e) => e.message).join("; "));
@@ -56,7 +54,7 @@ export async function fetchDistinctValues<TQuery>(
 	fieldName: string,
 ): Promise<PicklistOption[]> {
 	const data = await createDataSDK();
-	const response = await data.graphql?.<TQuery>(query);
+	const response = await data.graphql?.query<TQuery>({ query });
 	const errors = response?.errors;
 
 	if (errors?.length) {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { createDataSDK } from "@salesforce/sdk-data";
+import { createDataSDK } from "@salesforce/platform-sdk/data";
 import { AlertCircle, ChevronDown, ChevronRight, FileQuestion } from "lucide-react";
 import GET_ACCOUNT_DETAIL from "../api/query/getAccountDetail.graphql?raw";
 import type {
@@ -29,10 +29,10 @@ type AccountNode = NonNullable<
 
 async function fetchAccountDetail(recordId: string): Promise<AccountNode | null | undefined> {
 	const data = await createDataSDK();
-	const response = await data.graphql?.<GetAccountDetailQuery, GetAccountDetailQueryVariables>(
-		GET_ACCOUNT_DETAIL,
-		{ id: recordId },
-	);
+	const response = await data.graphql?.query<GetAccountDetailQuery, GetAccountDetailQueryVariables>({
+		query: GET_ACCOUNT_DETAIL,
+		variables: { id: recordId },
+	});
 
 	if (response?.errors?.length) {
 		throw new Error(response.errors.map((e) => e.message).join("; "));

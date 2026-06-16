@@ -7,6 +7,7 @@ import AccountObjectDetail from './pages/AccountObjectDetailPage';
 import PipelineDashboard from './pages/PipelineDashboard';
 import OpportunitiesPage from './pages/OpportunitiesPage';
 import AccountsWithOpportunitiesPage from './pages/AccountsWithOpportunitiesPage';
+import QuickClosePage from './pages/QuickClosePage';
 
 export const routes: RouteObject[] = [
   {
@@ -40,6 +41,11 @@ export const routes: RouteObject[] = [
         path: 'accounts-with-opps',
         element: <AccountsWithOpportunitiesPage />,
         handle: { showInNavigation: true, label: 'Accounts & Opps' }
+      },
+      {
+        path: 'quick-close',
+        element: <QuickClosePage />,
+        handle: { showInNavigation: true, label: 'Quick Close' }
       },
       {
         path: '*',

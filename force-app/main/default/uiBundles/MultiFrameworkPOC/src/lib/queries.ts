@@ -1,4 +1,4 @@
-import { gql } from '@salesforce/sdk-data';
+import { gql } from '@salesforce/platform-sdk/data';
 
 /**
  * CORE_PIPELINE_QUERY — default view.
@@ -10,7 +10,7 @@ import { gql } from '@salesforce/sdk-data';
  * Why this beats LWC @wire:
  *   In LWC, joining Opportunity + Account + User in one shot meant custom
  *   Apex or three @wire adapters with manual joining on the client. With
- *   sdk-data + GraphQL it is one declarative call; the joins are baked into
+ *   platform-sdk + GraphQL it is one declarative call; the joins are baked into
  *   the schema.
  *
  * Note the @optional directive on every record field. If FLS hides a field
@@ -62,7 +62,7 @@ export const CORE_PIPELINE_QUERY = gql`
  * Why it matters: this query is selected at runtime by usePipelineData()
  * based on the Dynamic Query toggle. LWC @wire cannot do this — @wire
  * requires a single, statically-known query string at compile time.
- * Multi-Framework + sdk-data lets us swap query strings on the fly, the
+ * Multi-Framework + platform-sdk lets us swap query strings on the fly, the
  * headline limitation this POC defeats.
  */
 export const EXTENDED_PIPELINE_QUERY = gql`

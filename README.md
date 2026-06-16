@@ -1,7 +1,7 @@
 # Sales Pipeline Intelligence Dashboard
 ### Salesforce Multi-Framework + React + GraphQL POC
 
-A proof-of-concept Salesforce app that runs a **React 19 SPA natively inside a Salesforce scratch org** — no LWC, no Apex, no SLDS. Built on the [Salesforce Multi-Framework](https://developer.salesforce.com/docs/atlas.en-us.platform_connect.meta/platform_connect/ui_bundle_intro.htm) (open beta) using `@salesforce/sdk-data` for GraphQL, shadcn/ui for components, and Tailwind CSS v4 for styling.
+A proof-of-concept Salesforce app that runs a **React 19 SPA natively inside a Salesforce scratch org** — no LWC, no Apex, no SLDS. Built on the [Salesforce Multi-Framework](https://developer.salesforce.com/docs/atlas.en-us.platform_connect.meta/platform_connect/ui_bundle_intro.htm) (open beta) using `@salesforce/platform-sdk` for GraphQL, shadcn/ui for components, and Tailwind CSS v4 for styling.
 
 This codebase is the companion repo for the **ABSYZ blog post series** on Salesforce Multi-Framework.
 
@@ -14,10 +14,11 @@ This codebase is the companion repo for the **ABSYZ blog post series** on Salesf
 | # | Feature | Why It Matters |
 |---|---|---|
 | 1 | **React running natively on Salesforce** | Launch from App Launcher — no Experience Cloud, no iframes |
-| 2 | **GraphQL via `@salesforce/sdk-data`** | Replaces `@wire` — one call returns Opportunity + Account + User |
+| 2 | **GraphQL via `@salesforce/platform-sdk`** | Replaces `@wire` — one call returns Opportunity + Account + User |
 | 3 | **Dynamic query construction at runtime** | Toggle swaps the query string live — impossible with `@wire`'s static requirement |
 | 4 | **`@optional` fields for FLS resilience** | Inaccessible fields are omitted gracefully instead of crashing the whole query |
 | 5 | **Third-party npm ecosystem (Recharts, shadcn/ui)** | No static-resource gymnastics — just `npm install` and import |
+| 6 | **GraphQL mutations (`data.graphql.mutate()`)** | Write Opportunity records inline — Quick Close demo fires live mutations |
 
 ---
 
@@ -51,7 +52,7 @@ This codebase is the companion repo for the **ABSYZ blog post series** on Salesf
 | Charts | Recharts | 3.x |
 | Icons | lucide-react | 0.562 |
 | Router | React Router | 7.x |
-| Data SDK | `@salesforce/sdk-data` | ^1.120 |
+| Data SDK | `@salesforce/platform-sdk` | ^10.2.2 |
 | Tests | Vitest + Playwright | 4.x / 1.49 |
 | Toasts | Sonner | 1.7 |
 | Date utils | date-fns | 4.x |
@@ -269,6 +270,9 @@ Filterable, sortable table. Extended columns (Industry, Annual Revenue, Owner Ti
 ### Optional Fields Demo
 Fires `OPTIONAL_FIELDS_DEMO_QUERY` on mount. Classifies `Industry` and `AnnualRevenue` as `resolved` (green dot), `skipped` (yellow dot — FLS blocked), or `error` (red dot). The `@optional` directive is what makes this possible — see the comment block in `OptionalFieldsDemo.tsx`.
 
+### Quick Close (Mutations Demo)
+Dedicated page (`/quick-close`) that demonstrates `data.graphql.mutate()` — the mutation equivalent of `executeGraphQL`. Lists open Opportunities with **Won** and **Lost** action buttons. Clicking either fires a live `updateOpportunityStage` GraphQL mutation and updates the row inline without a full refetch. Closed records appear in a read-only section below.
+
 ---
 
 ## Design Tokens
@@ -287,16 +291,15 @@ Dark theme only — SLDS is not used anywhere in this project.
 
 ## Constraints
 
-- **Read-only** — no GraphQL mutations. This is a display POC.
 - **Scratch org only** — Multi-Framework is in beta; production deploy is unsupported.
 - **No SLDS** — zero `slds-*` classes or `lightning/*` imports.
-- **No `@wire`, no Apex** — all data via `@salesforce/sdk-data` GraphQL.
-- **No `fetch()` / `axios` for Salesforce data** — only `sdk.graphql` via the `executeGraphQL` wrapper.
+- **No `@wire`, no Apex** — all data via `@salesforce/platform-sdk` GraphQL.
+- **No `fetch()` / `axios` for Salesforce data** — only `sdk.graphql.query()` / `sdk.graphql.mutate()` via the `executeGraphQL` / `executeMutation` wrappers.
 - **1280px+ viewport** — mobile is out of scope for this POC.
 
 ---
 
-## GraphQL Queries
+## GraphQL Operations
 
 Three named queries live in `src/lib/queries.ts`:
 
@@ -307,6 +310,12 @@ Three named queries live in `src/lib/queries.ts`:
 | `OPTIONAL_FIELDS_DEMO_QUERY` | OptionalFieldsDemo mount | 5 Accounts with `Industry @optional` + `AnnualRevenue @optional` |
 
 Every record field uses the `@optional` directive. Without it, a single inaccessible field fails the whole query with `FIELD_NOT_ACCESSIBLE`.
+
+The mutation lives in `src/api/opportunity/mutation/updateOpportunityStage.graphql`:
+
+| Operation | File | Purpose |
+|---|---|---|
+| `UpdateOpportunityStage` | `opportunityMutationService.ts` | Set StageName to `Closed Won` or `Closed Lost` via `data.graphql.mutate()` |
 
 ---
 

@@ -1,0 +1,22 @@
+mutation UpdateOpportunityStage($id: IdOrRef!, $stage: Picklist!) {
+	uiapi {
+		OpportunityUpdate(
+			input: {
+				Id: $id
+				Opportunity: {
+					StageName: $stage
+				}
+				}
+		) {
+			Record {
+				Id
+				Name {
+					value
+				}
+				StageName {
+					value
+				}
+			}
+		}
+	}
+}
